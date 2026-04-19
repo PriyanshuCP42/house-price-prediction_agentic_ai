@@ -139,6 +139,9 @@ def _build_search_query(user_query: str) -> str:
     return f"{user_query}{suffix}"
 
 
+import threading
+_web_search_lock = threading.Lock()
+
 def search_real_estate(query: str, max_results: int = 5) -> str:
     """Search the web for real estate data globally.
 
@@ -154,69 +157,70 @@ def search_real_estate(query: str, max_results: int = 5) -> str:
     max_results = max(1, min(int(max_results or 5), WEB_SEARCH_MAX_RESULTS))
     search_query = _build_search_query(clean_query)
     region, region_label = _detect_region(clean_query)
-    cache_key = (search_query.lower(), region, max_results)
+    cache_key = (search_query. lower(), region, max_results)
     if cache_key in _SEARCH_CACHE:
         return _SEARCH_CACHE[cache_key]
 
-    if _search_count >= MAX_SEARCHES_PER_SESSION:
-        return "[Web search limit reached for this session.]"
+    with _web_search_lock:
+        if _search_count >= MAX_SEARCHES_PER_SESSION:
+            return "[Web search limit reached for this session.]"
 
-    _search_count += 1
+        _search_count += 1
 
-    try:
-        from ddgs import DDGS
-
-        results = []
-        search_kwargs = {
-            "max_results": max_results * 4,
-            "region": region,
-            "safesearch": "moderate",
-        }
         try:
-            ddgs = DDGS(timeout=WEB_SEARCH_TIMEOUT_SECONDS)
+            from ddgs import DDGS
+
+            results = []
+            search_kwargs = {
+                "max_results": max_results * 4,
+                "region": region,
+                "safesearch": "moderate",
+            }
+            try:
+                ddgs = DDGS(timeout=WEB_SEARCH_TIMEOUT_SECONDS)
+            except TypeError:
+                ddgs = DDGS()
+            for r in ddgs.text(search_query, **search_kwargs):
+                url = r.get("href", "")
+
+                if _is_blocked(url):
+                    continue
+    
+                title = r.get("title", "")[:120]
+                snippet = r.get("body", "")[:500]
+    
+                # Skip results with non-Latin scripts (Chinese, Arabic, etc.)
+                if re.search(r'[\u4e00-\u9fff\u0600-\u06ff]', snippet):
+                    continue
+    
+                domain_match = re.search(r'https?://(?:www\.)?([^/]+)', url)
+                source = domain_match.group(1) if domain_match else "web"
+                score = _result_score(title, snippet, source, clean_query)
+                if score < 1:
+                    continue
+                results.append((score, f"[{source}] {title}\n{snippet}"))
+    
+                if len(results) >= max_results:
+                    break
+    
+            if not results:
+                return (
+                    f"[No real estate results found for this query. "
+                    f"Try being more specific — include the city name, property type (house/flat/apartment), "
+                    f"and number of bedrooms.]"
+                )
+    
+            ranked = [text for _, text in sorted(results, key=lambda item: item[0], reverse=True)]
+            response = f"Live Web Search Results ({len(ranked)} results, region: {region_label}):\n\n" + "\n\n".join(ranked)
+            _remember_cache(cache_key, response)
+            return response
+    
+        except ImportError:
+            return "[Web search unavailable — install duckduckgo-search package.]"
         except TypeError:
-            ddgs = DDGS()
-        for r in ddgs.text(search_query, **search_kwargs):
-            url = r.get("href", "")
-
-            if _is_blocked(url):
-                continue
-
-            title = r.get("title", "")[:120]
-            snippet = r.get("body", "")[:500]
-
-            # Skip results with non-Latin scripts (Chinese, Arabic, etc.)
-            if re.search(r'[\u4e00-\u9fff\u0600-\u06ff]', snippet):
-                continue
-
-            domain_match = re.search(r'https?://(?:www\.)?([^/]+)', url)
-            source = domain_match.group(1) if domain_match else "web"
-            score = _result_score(title, snippet, source, clean_query)
-            if score < 1:
-                continue
-            results.append((score, f"[{source}] {title}\n{snippet}"))
-
-            if len(results) >= max_results:
-                break
-
-        if not results:
-            return (
-                f"[No real estate results found for this query. "
-                f"Try being more specific — include the city name, property type (house/flat/apartment), "
-                f"and number of bedrooms.]"
-            )
-
-        ranked = [text for _, text in sorted(results, key=lambda item: item[0], reverse=True)]
-        response = f"Live Web Search Results ({len(ranked)} results, region: {region_label}):\n\n" + "\n\n".join(ranked)
-        _remember_cache(cache_key, response)
-        return response
-
-    except ImportError:
-        return "[Web search unavailable — install duckduckgo-search package.]"
-    except TypeError:
-        return "[Web search temporarily unavailable due to provider option mismatch. Try again.]"
-    except Exception as error:
-        return f"[Web search temporarily unavailable. Try again. Details: {type(error).__name__}]"
+            return "[Web search temporarily unavailable due to provider option mismatch. Try again.]"
+        except Exception as error:
+            return f"[Web search temporarily unavailable. Try again. Details: {type(error).__name__}]"
 
 
 def get_search_count() -> int:

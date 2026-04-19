@@ -240,7 +240,7 @@ if not IS_CHATBOT_MODE:
         height=120,
         placeholder="Example: 3 bed, 2 bath, 1800 sqft in 98103, built 1994, asking $725,000...",
     )
-    if st.sidebar.button("Parse Listing Notes", use_container_width=True):
+    if st.sidebar.button("Parse Listing Notes", width="stretch"):
         parsed = parse_listing_text(listing_notes)
         if parsed:
             for field, value in parsed.items():
@@ -1065,7 +1065,7 @@ else:
                         title="Neighborhood Intelligence Breakdown",
                     )
                     fig_scores.update_layout(height=320, coloraxis_showscale=False, plot_bgcolor="white", paper_bgcolor="white")
-                    st.plotly_chart(fig_scores, use_container_width=True)
+                    st.plotly_chart(fig_scores, width="stretch")
                     import re as _re
                     _clean_narrative = _re.sub(r'<[^>]+>', '', report.neighborhood.narrative or "")
                     st.caption(_clean_narrative)
@@ -1103,8 +1103,8 @@ else:
                     risk_data = [{"factor": f.factor, "score": f.score, "severity": f.severity} for f in report.risk_factors]
                     fig = chart_risk_breakdown(risk_data)
                     if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    st.plotly_chart(chart_confidence_gauge(val.confidence), use_container_width=True)
+                        st.plotly_chart(fig, width="stretch")
+                    st.plotly_chart(chart_confidence_gauge(val.confidence), width="stretch")
                 with comp_col:
                     st.markdown('<div class="section-title">Comparable Properties</div>', unsafe_allow_html=True)
                     comps = final_state.get("comparables", [])
@@ -1113,10 +1113,10 @@ else:
                         comp_df.columns = ["Price", "Beds", "Baths", "Sqft", "Grade", "Condition", "Age", "$/Sqft"]
                         comp_df["Price"] = comp_df["Price"].apply(format_currency)
                         comp_df["$/Sqft"] = comp_df["$/Sqft"].apply(format_currency)
-                        st.dataframe(comp_df, use_container_width=True, hide_index=True)
+                        st.dataframe(comp_df, width="stretch", hide_index=True)
                     else:
                         st.info("Comparable sales populate after the pipeline completes.")
-                    st.plotly_chart(chart_investment_gauge(val.investment_score), use_container_width=True)
+                    st.plotly_chart(chart_investment_gauge(val.investment_score), width="stretch")
 
                 st.markdown("---")
                 action_col, source_col = st.columns([1, 1])
@@ -1129,7 +1129,7 @@ else:
                             data=pdf_buffer,
                             file_name="property_decision_copilot_report.pdf",
                             mime="application/pdf",
-                            use_container_width=True,
+                            width="stretch",
                         )
                     except Exception as e:
                         st.caption(f"PDF generation unavailable: {e}")
@@ -1156,7 +1156,7 @@ else:
                     rate_shift_pct = st.slider("Interest Rate Shock %", -2, 4, 1, key="scenario_rate_shift")
 
                 scenario_df = build_scenario_table(final_state, report, consultation_context, market_shift_pct, offer_delta_pct, rate_shift_pct)
-                st.dataframe(scenario_df, use_container_width=True, hide_index=True)
+                st.dataframe(scenario_df, width="stretch", hide_index=True)
 
                 scenario_chart_raw = pd.DataFrame([
                     {"Scenario": "Bull", "Scenario Value": report.valuation.predicted_price * (1 + (market_shift_pct + 4) / 100)},
@@ -1172,7 +1172,7 @@ else:
                     title="Scenario Value Envelope",
                 )
                 fig_scenario.update_layout(height=340, plot_bgcolor="white", paper_bgcolor="white", showlegend=False)
-                st.plotly_chart(fig_scenario, use_container_width=True)
+                st.plotly_chart(fig_scenario, width="stretch")
                 st.info(
                     f"Current negotiation target is {format_currency(report.negotiation.target_price)}. "
                     f"Use this lab to test how market movement and bidding discipline affect downside protection."
@@ -1185,9 +1185,9 @@ else:
                 st.markdown('<div class="section-title">Model & Market Insights</div>', unsafe_allow_html=True)
                 col_c1, col_c2 = st.columns(2)
                 with col_c1:
-                    st.plotly_chart(chart_feature_importance(), use_container_width=True)
+                    st.plotly_chart(chart_feature_importance(), width="stretch")
                 with col_c2:
-                    st.plotly_chart(chart_price_dist(report.valuation.predicted_price), use_container_width=True)
+                    st.plotly_chart(chart_price_dist(report.valuation.predicted_price), width="stretch")
 
                 try:
                     prop_for_pred = final_state.get("property_input", {})
@@ -1206,7 +1206,7 @@ else:
                     )
                     fig_forest.add_vline(x=tree_preds.mean(), line_dash="dash", line_color="#1d4ed8", annotation_text=f"Mean: {format_currency(tree_preds.mean())}")
                     fig_forest.update_layout(height=360, plot_bgcolor="white", paper_bgcolor="white", showlegend=False)
-                    st.plotly_chart(fig_forest, use_container_width=True)
+                    st.plotly_chart(fig_forest, width="stretch")
                 except Exception:
                     pass
 
@@ -1228,7 +1228,7 @@ else:
                         name="Subject Property",
                     )
                     fig_scatter.update_layout(height=400, plot_bgcolor="white", paper_bgcolor="white")
-                    st.plotly_chart(fig_scatter, use_container_width=True)
+                    st.plotly_chart(fig_scatter, width="stretch")
                 except Exception:
                     pass
             else:
@@ -1322,6 +1322,6 @@ else:
     )
     col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
-        if st.button("Open Property Chatbot", key="bottom_chat_btn", use_container_width=True):
+        if st.button("Open Property Chatbot", key="bottom_chat_btn", width="stretch"):
             st.session_state["_chatbot_switch"] = True
             st.rerun()

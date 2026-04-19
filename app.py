@@ -680,7 +680,7 @@ with st.sidebar:
     waterfront = st.checkbox("Waterfront Property 🌊")
     view       = st.slider("View Quality (0-4)",0,4,0)
     st.markdown("---")
-    st.button("🔍 Predict Price", use_container_width=True)
+    st.button("🔍 Predict Price", width="stretch")
 
 # Compute derived values
 house_age     = current_year - yr_built
@@ -742,19 +742,19 @@ with ca:
     <tr><td style="color:#6b7280;">Renovated</td><td><b>{"Yes ✅" if renovated else "No"}</b></td></tr>
     </table>""", unsafe_allow_html=True)
 with cb:
-    st.plotly_chart(chart_confidence_gauge(conf), use_container_width=True)
+    st.plotly_chart(chart_confidence_gauge(conf), width="stretch")
 with cc2:
-    st.plotly_chart(chart_investment_gauge(inv_sc), use_container_width=True)
+    st.plotly_chart(chart_investment_gauge(inv_sc), width="stretch")
 
 # ROW 3: Analytics
 st.markdown("---")
 st.markdown('<div class="section-title">📈 Analytics Dashboard</div>',unsafe_allow_html=True)
 cl,cr = st.columns(2)
-with cl: st.plotly_chart(chart_feature_importance(model,feature_names), use_container_width=True)
-with cr: st.plotly_chart(chart_price_dist(df_full,zipcode,price), use_container_width=True)
+with cl: st.plotly_chart(chart_feature_importance(model,feature_names), width="stretch")
+with cr: st.plotly_chart(chart_price_dist(df_full,zipcode,price), width="stretch")
 cl2,cr2 = st.columns(2)
-with cl2: st.plotly_chart(chart_forest_dist(model,scaler,feature_names,inputs,price), use_container_width=True)
-with cr2: st.plotly_chart(chart_price_sqft(df_full,sqft_living,price), use_container_width=True)
+with cl2: st.plotly_chart(chart_forest_dist(model,scaler,feature_names,inputs,price), width="stretch")
+with cr2: st.plotly_chart(chart_price_sqft(df_full,sqft_living,price), width="stretch")
 
 # ROW 4: Comparables
 st.markdown("---")
@@ -797,7 +797,7 @@ if len(comp_df) > 0:
 
     with ct1:
         st.markdown("**📋 Sold Properties**")
-        st.dataframe(disp, use_container_width=True, hide_index=True, height=260)
+        st.dataframe(disp, width="stretch", hide_index=True, height=260)
 
         # Your property card below table
         avg_comp      = cd['price'].mean()
@@ -898,7 +898,7 @@ if len(comp_df) > 0:
             bargap=0.35,
         )
 
-        st.plotly_chart(fc, use_container_width=True)
+        st.plotly_chart(fc, width="stretch")
 
         # Clean legend (no markdown rendering issues)
         st.markdown(
