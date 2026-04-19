@@ -13,18 +13,6 @@ from config.settings import (
 
 _llm_instance = None
 
-# Global diagnostics for UI display
-STATUS_LOG = []
-
-
-def _log(msg):
-    """Log to both console and UI buffer."""
-    import datetime
-    ts = datetime.datetime.now().strftime("%H:%M:%S")
-    formatted = f"[{ts}] {msg}"
-    print(formatted, flush=True)
-    STATUS_LOG.append(formatted)
-
 
 def _with_timeout(factory, kwargs: dict):
     """Instantiate a LangChain chat model with timeout when supported."""
@@ -49,79 +37,21 @@ def get_llm():
     if _llm_instance is not None:
         return _llm_instance
 
-# --- Loud Cloud Diagnostics ---
-def _cloud_diag():
-    _log("LOUD DEBUG: Starting LLM Configuration Discovery")
-    # Check Environment
-    env_keys = [k for k in os.environ.keys() if "GROQ" in k or "GOOGLE" in k or "API_KEY" in k]
-    _log(f"LOUD DEBUG: Relevant Environment Keys: {env_keys}")
-    
-    # Check Streamlit Secrets
-    try:
-        import streamlit as st
-        if hasattr(st, "secrets") and st.secrets:
-            sec_keys = list(st.secrets.keys())
-            _log(f"LOUD DEBUG: st.secrets detected with keys: {sec_keys}")
-            
-            # Key Validation logic
-            groq_raw = st.secrets.get("GROQ_API_KEY", "")
-            google_raw = st.secrets.get("GOOGLE_API_KEY", "")
-            
-            if groq_raw:
-                groq_str = str(groq_raw).strip()
-                if not groq_str.startswith("gsk_"):
-                    _log("WARNING: GROQ_API_KEY should start with 'gsk_'. Currently it does NOT.")
-                _log(f"LOUD DEBUG: Groq key length: {len(groq_str)}")
-            
-            if google_raw:
-                google_str = str(google_raw).strip()
-                if not google_str.startswith("AIza"):
-                    _log("WARNING: GOOGLE_API_KEY should start with 'AIza'. Currently it does NOT.")
-                _log(f"LOUD DEBUG: Google key length: {len(google_str)}")
-
-            # Simple Connectivity Test (Hidden)
-            if "GROQ_API_KEY" in sec_keys:
-                try:
-                    llm = get_llm()
-                    if llm:
-                        _log("LOUD DEBUG: Initiating AI Connectivity Test (Groq)...")
-                        from langchain_core.messages import HumanMessage
-                        llm.invoke([HumanMessage(content="Relational check: 2+2=")])
-                        _log("LOUD DEBUG: CONNECTIVITY TEST SUCCESSFUL")
-                except Exception as test_err:
-                    _log(f"LOUD DEBUG: CONNECTIVITY TEST FAILED: {test_err}")
-        else:
-            _log("LOUD DEBUG: st.secrets is EMPTY or UNAVAILABLE")
-    except Exception as e:
-        _log(f"LOUD DEBUG: st.secrets error: {e}")
-
-_cloud_diag()
-
-
-def _get_secret(name):
-    """Robustly retrieve a secret from environment or Streamlit."""
-    val = os.environ.get(name)
-    if not val:
-        try:
-            import streamlit as st
-            val = st.secrets.get(name)
-            # Try lowercase variant if uppercase fails
-            if not val:
-                val = st.secrets.get(name.lower())
-        except:
-            pass
-    return _clean_key(val)
-
-
-def get_llm():
-    """Returns the best available free-tier LLM with automatic fallback."""
-    global _llm_instance
-    if _llm_instance is not None:
-        return _llm_instance
-
     errors = []
 
-    # Try to load secrets
+    # Simple retrieval logic without loud prints
+    def _get_secret(name):
+        val = os.environ.get(name)
+        if not val:
+            try:
+                import streamlit as st
+                val = st.secrets.get(name)
+                if not val:
+                    val = st.secrets.get(name.lower())
+            except:
+                pass
+        return _clean_key(val)
+
     groq_key = _get_secret("GROQ_API_KEY")
     google_key = _get_secret("GOOGLE_API_KEY")
 
