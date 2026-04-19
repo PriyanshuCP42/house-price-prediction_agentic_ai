@@ -1,98 +1,136 @@
-# 🏠 House Price Prediction Agentic AI
+# House Price Prediction: Agentic Intelligence System
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
-![ML](https://img.shields.io/badge/ML-Random_Forest-8CAAE6?style=for-the-badge&logo=scikit-learn&logoColor=white)
-![LangGraph](https://img.shields.io/badge/LangGraph-Agentic_AI-000000?style=for-the-badge&logo=langchain&logoColor=white)
-![Groq](https://img.shields.io/badge/Groq-Llama_3.1-f3d122?style=for-the-badge&logo=groq&logoColor=black)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.56-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Orchestration-black?style=flat-square&logo=langchain&logoColor=white)
+![Scikit--Learn](https://img.shields.io/badge/Scikit--Learn-ML-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-Inference-f3d122?style=flat-square&logo=groq&logoColor=black)
 
-A state-of-the-art real estate intelligence platform that bridges the gap between **Deterministic Machine Learning** and **Agentic Reasoning**. This system doesn't just predict a price; it plans, researches, and advises like a professional human consultant.
-
----
-
-## 🧠 Agentic AI Architecture (The Brain)
-
-Unlike traditional models that only output a number, this project uses a **Multi-Agent Orchestration** framework powered by **LangGraph**. The system treats the advisory process as a series of specialized cognitive tasks:
-
-### ⚙️ The Graph Workflow
-1. **The Planner**: Receives the initial property data and determines the "Search Strategy." It decides what market data is missing for this specific zipcode.
-2. **The ML Core Agent**: Directly interfaces with the **Random Forest Regressor**. It provides the "Ground Truth" valuation, which serves as a factual anchor for the rest of the pipeline.
-3. **The Web Research Agent**: Equipped with **DuckDuckGo Search**, it scans for real-time market trends, local neighborhood developments, and interest rate impacts that a static model might miss.
-4. **The Risk Analyst**: Performs a multi-dimensional assessment (Market Risk, Physical Risk, Location Risk) based on the combined output of search results and model predictions.
-5. **The Final Synthesizer**: Uses **Llama 3.1 (via Groq)** to cross-reference all agent findings, resolving conflicts between "model prediction" and "actual market sentiment" to produce the final Decision Memo.
-
-### 🤖 Why "Agentic"?
-- **Autonomous Error Correction**: If the search agent finds no data, the graph can route back to attempt a different search query.
-- **Stateful Memory**: The app maintains a "Thread" for each property run, allowing the AI to remember previous context during a session.
-- **Tool Use**: Agents autonomously decide when to use the ML Model vs. when to use the Web Search tool.
+An advanced real estate advisory platform utilizing a multi-agent orchestration framework to synthesize machine learning valuations with real-time market research.
 
 ---
 
-## 🚀 Key Features
+## System Architecture
 
-### 1. Decision Copilot
-- **ML Baseline**: Precison valuation for King County properties.
-- **Real-time Context**: Fetches neighborhood "vibe" and recent infrastructure changes.
-- **Strategic Negotiation**: Generates Anchor, Target, and Walk-away prices.
+```mermaid
+graph TD
+    User([User / Browser]) --> Input[Property metadata input]
+    
+    subgraph Frontend [Streamlit Frontend]
+        Advisory[advisory_app.py<br/>Main copilot UI]
+        Entry[streamlit_app.py<br/>Cloud entrypoint]
+        Baseline[app.py<br/>Baseline app]
+    end
+    Input --> Frontend
 
-### 2. Scenario Lab
-- **Sensitivity Analysis**: See exactly how much a 1-point increase in property "Grade" increases your value ($).
-- **Interactive Deltas**: Adjustable sliders let you simulate renovations and immediately view the ROI.
+    subgraph Orchestration [LangGraph Agent Orchestration]
+        Predict[Prediction Agent<br/>ML price inference]
+        Advise[Advisory Agent<br/>Investment scoring]
+        Search[Search Agent<br/>Web + market lookup]
+    end
+    Frontend --> Orchestration
 
-### 3. AI Property Chatbot
-- **Universal Search**: Guidance for any US location, not just King County.
-- **Natural Language Reasoning**: Ask complex questions like *"Is it better to buy a 3-bed in Seattle or a 4-bed in Renton right now?"*
+    subgraph Core [Core Logic & Models]
+        RF[Random Forest<br/>200 trees, R²=0.88<br/>model.pkl]
+        RAG[RAG Pipeline<br/>Markdown KB search]
+        LLM[LLM Providers<br/>Groq / Google Gemini]
+    end
+    Orchestration --> Core
 
----
+    subgraph Data [Data & Configuration]
+        CSV[kc_house_data.csv<br/>21,613 historical sales]
+        FE[Feature Engineering<br/>Age, Amenity Score]
+        Config[Config Layer<br/>Secrets, API keys]
+    end
+    Core --> Data
 
-## 🛠️ Technical Implementation
+    subgraph Output [Output Layer]
+        Dash[Analytics Dashboard<br/>Plotly charts, comps]
+        Price[Price Prediction<br/>Range, confidence score]
+        PDF[PDF Advisory Report<br/>ReportLab, exec summary]
+    end
+    Data --> Output
 
-### Core Dependencies
-- **LangGraph**: Orchestrates the cyclic agent workflow.
-- **Scikit-Learn**: Powering the Random Forest ensemble model.
-- **Groq & Llama 3.1**: Providing sub-second inference speeds for the LLM agents.
-- **Plotly**: Generating high-fidelity visual insights and probability distributions.
-
-### Model Transparency
-We expose the **Random Forest Prediction Intervals** to the user. Instead of a single number, the **Model Insights** tab shows a distribution of all tree predictions, providing a "Confidence Window" for the valuation.
-
----
-
-## 📂 Project Organization
-
-```text
-├── agents/             
-│   ├── nodes/          # Task-specific agent nodes (Search, ML, Advisor)
-│   ├── tools/          # Discrete tools (DuckDuckGo, Model Predictor)
-│   └── state.py        # Shared Graph State definition
-├── config/             
-│   ├── settings.py     # Hyperparameters and model versions
-│   └── llm_config.py   # Provider logic (Groq/Gemini)
-├── models/             # Pre-trained ML pkl files and scalers
-└── streamlit_app.py    # Main UI entrypoint
+    Output --> Deploy([Streamlit Community Cloud])
 ```
 
 ---
 
-## ⚙️ Quick Start
+## Agentic AI Orchestration
 
-1. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+The system utilizes a directed acyclic graph (DAG) managed by **LangGraph** to coordinate specialized agents. This architecture ensures stateful execution and precise tool-calling.
 
-2. **Setup Secrets**:
-   Add to `.streamlit/secrets.toml`:
-   ```toml
-   GROQ_API_KEY = "gsk_..."
-   ```
+### Agent Node Specifications
+| Agent | Primary Responsibility | Integrated Tools |
+| :--- | :--- | :--- |
+| **Prediction Agent** | Factual grounding and ML inference | Random Forest Model, Scikit-Learn |
+| **Search Agent** | Real-time market data retrieval | DuckDuckGo Search API |
+| **Advisory Agent** | Investment risk and strategy synthesis | RAG Pipeline, Client Objective Matrix |
 
-3. **Launch**:
-   ```bash
-   streamlit run streamlit_app.py
-   ```
+### Execution Workflow
+1. **Planning Phase**: The system initializes the state and determines the search parameters based on the property's location and features.
+2. **Analysis Phase**: The Prediction and Search agents execute in parallel. The ML agent provides a baseline price from historical data, while the Search agent fetches current neighborhood sentiment.
+3. **Synthesis Phase**: The Advisory agent reviews the outputs, identifies risks (e.g., condition/location mismatches), and generates a final strategic report.
 
 ---
 
-**Built with ❤️ for Modern Real Estate Intelligence.**
-**Author**: [PriyanshuCP42](https://github.com/PriyanshuCP42)
+## Machine Learning Methodology
+
+### Model Architecture
+- **Type**: Random Forest Regressor (Ensemble Learning)
+- **Estimators**: 200 Decision Trees
+- **Performance Meteric**: R² score of 0.88 on King County validation set
+- **Output**: Range-based prediction with confidence intervals
+
+### Featured Engineering
+The following derived features significantly impact model performance:
+- **House Age**: Computed as `Current Year - Year Built`
+- **Renovation Status**: Boolean indicator for properties updated after 2010
+- **Amenity Score**: Weighted aggregation of Waterfront, View, Condition, and Grade metrics
+
+---
+
+## Core Functionality
+
+### 1. Decision Copilot
+*   **Predictive Valuation**: Precise price estimation grounded in local historical sales.
+*   **Market Contextualization**: Real-time correlation of listing data with live market trends.
+*   **Negotiation Strategy**: Algorithmic determination of anchor and walk-away pricing.
+
+### 2. Scenario Laboratory
+*   **Sensitivity Analysis**: Dynamic modeling of price impact based on structural modifications.
+*   **ROI Verification**: Real-time appraisal of renovation value-add.
+
+### 3. Property Intelligence Chatbot
+*   **Contextual Awareness**: Conversational interface with memory of current property analysis.
+*   **Geospatial Logic**: Capability to analyze properties across 50+ US metropolitan areas.
+
+---
+
+## Installation and Configuration
+
+### Environment Setup
+1. **Repository Synchronization**:
+   ```bash
+   git clone https://github.com/PriyanshuCP42/house-price-prediction_agentic_ai.git
+   ```
+2. **Dependency Management**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Security Configuration**:
+   Populate `.streamlit/secrets.toml` with the following:
+   ```toml
+   GROQ_API_KEY = "your_key"
+   MAPBOX_API_KEY = "your_key"
+   ```
+
+### Execution
+```bash
+streamlit run streamlit_app.py
+```
+
+---
+
+**Technical Specification Document**
+**Maintained by**: [PriyanshuCP42](https://github.com/PriyanshuCP42)
