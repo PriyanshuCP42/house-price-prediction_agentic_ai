@@ -27,7 +27,7 @@ try:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-except st.StreamlitAPIException:
+except Exception:
     pass
 
 # --- Custom CSS ---
@@ -175,7 +175,8 @@ app_mode = st.sidebar.radio(
     "Choose Mode",
     ["Advisory Report (King County)", "AI Property Chatbot (Any Location)"],
     index=_default_mode,
-    help="Advisory Report uses ML model for King County. Chatbot uses AI for any US location."
+    help="Advisory Report uses ML model for King County. Chatbot uses AI for any US location.",
+    key="main_app_mode_radio_unique"
 )
 
 # Clear the switch flag after it's been consumed
