@@ -1,0 +1,19 @@
+# Core
+streamlit>=1.32.0,<2.0
+pandas>=2.0.0,<3.0
+numpy>=1.24.0,<2.0
+scikit-learn>=1.6.1,<1.7
+plotly>=5.15.0,<6.0
+reportlab>=4.0.0,<5.0
+
+# Agentic AI
+langgraph>=1.1.0,<2.0
+langchain-core>=1.2.0,<2.0
+langchain-groq>=1.1.0,<2.0
+langchain-google-genai>=4.0.0,<5.0
+pydantic>=2.0.0,<3.0
+ddgs>=9.0.0,<10.0
+
+# RAG / Knowledge Base
+chromadb>=1.0.0,<2.0
+sentence-transformers>=3.0.0,<4.0

@@ -1,0 +1,30 @@
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# ChromaDB (regenerated at runtime)
+rag/chroma_db/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets (never commit API keys)
+.streamlit/secrets.toml
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.playwright-cli/
