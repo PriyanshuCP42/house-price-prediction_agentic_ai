@@ -291,7 +291,6 @@ Populate `.streamlit/secrets.toml`:
 ```toml
 GROQ_API_KEY = "your_key"
 GOOGLE_API_KEY = "your_key"
-MAPBOX_API_KEY = "your_key"
 ```
 
 > The app runs without API keys using deterministic fallbacks. LLM-powered narrative and chatbot features require at least one of `GROQ_API_KEY` or `GOOGLE_API_KEY`.
