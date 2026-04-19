@@ -20,12 +20,15 @@ from io import BytesIO
 from config.guardrails import sanitize_plaintext
 
 # --- Page Config ---
-st.set_page_config(
-    page_title="AI Real Estate Advisory",
-    page_icon="https://img.icons8.com/fluency/48/real-estate.png",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+try:
+    st.set_page_config(
+        page_title="AI Real Estate Advisory",
+        page_icon="https://img.icons8.com/fluency/48/real-estate.png",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+except st.StreamlitAPIException:
+    pass
 
 # --- Custom CSS ---
 st.markdown("""

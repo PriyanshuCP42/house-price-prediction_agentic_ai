@@ -24,6 +24,13 @@ def _with_timeout(factory, kwargs: dict):
     return factory(**kwargs)
 
 
+def _clean_key(key):
+    """Clean key of whitespace and surrounding quotes."""
+    if key and isinstance(key, str):
+        return key.strip().strip('"').strip("'")
+    return key
+
+
 def get_llm():
     """Returns the best available free-tier LLM with automatic fallback."""
     global _llm_instance
@@ -32,15 +39,25 @@ def get_llm():
 
     errors = []
 
-    # Try Groq first (Llama 3.1 8B — extremely fast, 30 RPM free)
-    groq_key = os.environ.get("GROQ_API_KEY", "")
-    if not groq_key:
-        try:
-            import streamlit as st
-            groq_key = st.secrets.get("GROQ_API_KEY", "")
-        except Exception:
-            pass
+    # Try to load secrets from Streamlit (Cloud) or Environment
+    groq_key = _clean_key(os.environ.get("GROQ_API_KEY"))
+    google_key = _clean_key(os.environ.get("GOOGLE_API_KEY"))
 
+    try:
+        import streamlit as st
+        # Log available keys (safely) for cloud debugging
+        if hasattr(st, "secrets") and st.secrets:
+            # Only print key names, never values
+            print(f"DEBUG: st.secrets detected with keys: {list(st.secrets.keys())}")
+            if not groq_key:
+                groq_key = _clean_key(st.secrets.get("GROQ_API_KEY"))
+            if not google_key:
+                google_key = _clean_key(st.secrets.get("GOOGLE_API_KEY"))
+    except Exception as e:
+        # Not running in Streamlit or st.secrets unavailable
+        pass
+
+    # Try Groq first
     if groq_key:
         try:
             from langchain_groq import ChatGroq
@@ -56,15 +73,7 @@ def get_llm():
         except Exception as e:
             errors.append(f"Groq init failed: {e}")
 
-    # Fallback: Google Gemini Flash (15 RPM free)
-    google_key = os.environ.get("GOOGLE_API_KEY", "")
-    if not google_key:
-        try:
-            import streamlit as st
-            google_key = st.secrets.get("GOOGLE_API_KEY", "")
-        except Exception:
-            pass
-
+    # Fallback to Gemini
     if google_key:
         try:
             from langchain_google_genai import ChatGoogleGenerativeAI
@@ -83,5 +92,6 @@ def get_llm():
     error_details = "; ".join(errors) if errors else "No API keys provided"
     raise RuntimeError(
         f"No LLM available. {error_details}. "
-        "Set GROQ_API_KEY or GOOGLE_API_KEY in environment variables or .streamlit/secrets.toml"
+        "Verified GROQ_API_KEY and GOOGLE_API_KEY are missing from environment and st.secrets. "
+        "If deployed on Streamlit Cloud, add them in Settings -> Secrets."
     )
