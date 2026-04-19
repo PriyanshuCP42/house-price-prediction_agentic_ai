@@ -11,14 +11,6 @@
 
 ---
 
-## 👥 Team
-
-| Priyanshu Agrahari | Mihika Mathur | Vishuti Jamwal | Abhijeet |
-|---|---|---|---|
-| Team Lead & ML Architect | ML Engineer | Research & QA | QA & Review |
-
----
-
 ## 📌 Table of Contents
 
 - [Project Overview](#-project-overview)
@@ -341,10 +333,10 @@ python rag/build_knowledge_base.py
 
 | Name | Role |
 |---|---|
-| **Priyanshu Agrahari** | Team Lead & ML Pipeline Architect — end-to-end project execution, full ML pipeline, Streamlit app build and deployment |
-| **Mihika Mathur** | ML Engineer — Random Forest implementation, feature engineering, model optimization |
-| **Vishuti Jamwal** | Research & QA — dataset research, documentation, validation and testing |
-| **Abhijeet** | QA & Review — validation, testing, and model review |
+| **Priyanshu Agrahari** | Team Lead & Architect — led end-to-end development; built ML pipeline, designed agentic AI system, and handled deployment |
+| **Mihika Mathur** | ML Engineer & QA — implemented model & feature engineering; handled documentation and ensured system reliability through testing |
+| **Vishuti Jamwal** | Research & System Design — conducted research, created architecture diagrams, wrote reports, and contributed to QA/testing |
+| **Abhijeet** | QA & AI Agent Developer — worked on validation/testing in ML phase and co-developed the agent system with core logic & integration |
 
 ---
 
