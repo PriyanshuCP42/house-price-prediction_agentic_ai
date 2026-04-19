@@ -51,10 +51,19 @@ def _cloud_diag():
         if hasattr(st, "secrets") and st.secrets:
             sec_keys = list(st.secrets.keys())
             print(f"LOUD DEBUG: st.secrets detected with keys: {sec_keys}")
-            # Check for common variants
-            for k in ["groq_api_key", "google_api_key", "Groq_Api_Key"]:
-                if k in sec_keys:
-                    print(f"LOUD DEBUG: FOUND VARIANT KEY: {k}")
+            
+            # Simple Connectivity Test (Hidden)
+            if "GROQ_API_KEY" in sec_keys or "GOOGLE_API_KEY" in sec_keys:
+                try:
+                    llm = get_llm()
+                    if llm:
+                        print("LOUD DEBUG: Initiating AI Connectivity Test...")
+                        from langchain_core.messages import HumanMessage
+                        # Fast test, no tools
+                        llm.invoke([HumanMessage(content="Relational check: 2+2=")])
+                        print("LOUD DEBUG: CONNECTIVITY TEST SUCCESSFUL")
+                except Exception as test_err:
+                    print(f"LOUD DEBUG: CONNECTIVITY TEST FAILED: {test_err}")
         else:
             print("LOUD DEBUG: st.secrets is EMPTY or UNAVAILABLE")
     except Exception as e:
