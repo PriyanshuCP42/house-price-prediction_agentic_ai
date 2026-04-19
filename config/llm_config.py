@@ -37,25 +37,59 @@ def get_llm():
     if _llm_instance is not None:
         return _llm_instance
 
-    errors = []
-
-    # Try to load secrets from Streamlit (Cloud) or Environment
-    groq_key = _clean_key(os.environ.get("GROQ_API_KEY"))
-    google_key = _clean_key(os.environ.get("GOOGLE_API_KEY"))
-
+# --- Loud Cloud Diagnostics ---
+def _cloud_diag():
+    print("\n" + "="*50)
+    print("LOUD DEBUG: Starting LLM Configuration Discovery")
+    # Check Environment
+    env_keys = [k for k in os.environ.keys() if "GROQ" in k or "GOOGLE" in k or "API_KEY" in k]
+    print(f"LOUD DEBUG: Relevant Environment Keys: {env_keys}")
+    
+    # Check Streamlit Secrets
     try:
         import streamlit as st
-        # Log available keys (safely) for cloud debugging
         if hasattr(st, "secrets") and st.secrets:
-            # Only print key names, never values
-            print(f"DEBUG: st.secrets detected with keys: {list(st.secrets.keys())}")
-            if not groq_key:
-                groq_key = _clean_key(st.secrets.get("GROQ_API_KEY"))
-            if not google_key:
-                google_key = _clean_key(st.secrets.get("GOOGLE_API_KEY"))
+            sec_keys = list(st.secrets.keys())
+            print(f"LOUD DEBUG: st.secrets detected with keys: {sec_keys}")
+            # Check for common variants
+            for k in ["groq_api_key", "google_api_key", "Groq_Api_Key"]:
+                if k in sec_keys:
+                    print(f"LOUD DEBUG: FOUND VARIANT KEY: {k}")
+        else:
+            print("LOUD DEBUG: st.secrets is EMPTY or UNAVAILABLE")
     except Exception as e:
-        # Not running in Streamlit or st.secrets unavailable
-        pass
+        print(f"LOUD DEBUG: st.secrets error: {e}")
+    print("="*50 + "\n")
+
+_cloud_diag()
+
+
+def _get_secret(name):
+    """Robustly retrieve a secret from environment or Streamlit."""
+    val = os.environ.get(name)
+    if not val:
+        try:
+            import streamlit as st
+            val = st.secrets.get(name)
+            # Try lowercase variant if uppercase fails
+            if not val:
+                val = st.secrets.get(name.lower())
+        except:
+            pass
+    return _clean_key(val)
+
+
+def get_llm():
+    """Returns the best available free-tier LLM with automatic fallback."""
+    global _llm_instance
+    if _llm_instance is not None:
+        return _llm_instance
+
+    errors = []
+
+    # Try to load secrets
+    groq_key = _get_secret("GROQ_API_KEY")
+    google_key = _get_secret("GOOGLE_API_KEY")
 
     # Try Groq first
     if groq_key:

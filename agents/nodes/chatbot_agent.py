@@ -301,6 +301,7 @@ def chat_with_advisor(query: str, chat_history: list[dict], thread_id: str | Non
 
     except Exception as e:
         # Fallback: direct LLM call without tools
+        print(f"LOUD DEBUG: Chatbot Agent Error: {e}")
         try:
             llm = get_llm()
             fallback_messages = [
@@ -309,7 +310,8 @@ def chat_with_advisor(query: str, chat_history: list[dict], thread_id: str | Non
             ]
             response = llm.invoke(fallback_messages)
             response_text = response.content + "\n\n*Note: Advanced tools were temporarily unavailable.*"
-        except Exception:
+        except Exception as fallback_err:
+            print(f"LOUD DEBUG: Chatbot Fallback Error: {fallback_err}")
             return "I'm having trouble connecting to the AI service right now. Please try again in a moment."
 
     # Defense-in-depth: validate output
