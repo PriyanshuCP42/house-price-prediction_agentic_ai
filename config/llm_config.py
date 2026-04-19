@@ -63,14 +63,29 @@ def _cloud_diag():
             sec_keys = list(st.secrets.keys())
             _log(f"LOUD DEBUG: st.secrets detected with keys: {sec_keys}")
             
+            # Key Validation logic
+            groq_raw = st.secrets.get("GROQ_API_KEY", "")
+            google_raw = st.secrets.get("GOOGLE_API_KEY", "")
+            
+            if groq_raw:
+                groq_str = str(groq_raw).strip()
+                if not groq_str.startswith("gsk_"):
+                    _log("WARNING: GROQ_API_KEY should start with 'gsk_'. Currently it does NOT.")
+                _log(f"LOUD DEBUG: Groq key length: {len(groq_str)}")
+            
+            if google_raw:
+                google_str = str(google_raw).strip()
+                if not google_str.startswith("AIza"):
+                    _log("WARNING: GOOGLE_API_KEY should start with 'AIza'. Currently it does NOT.")
+                _log(f"LOUD DEBUG: Google key length: {len(google_str)}")
+
             # Simple Connectivity Test (Hidden)
-            if "GROQ_API_KEY" in sec_keys or "GOOGLE_API_KEY" in sec_keys:
+            if "GROQ_API_KEY" in sec_keys:
                 try:
                     llm = get_llm()
                     if llm:
-                        _log("LOUD DEBUG: Initiating AI Connectivity Test...")
+                        _log("LOUD DEBUG: Initiating AI Connectivity Test (Groq)...")
                         from langchain_core.messages import HumanMessage
-                        # Fast test, no tools
                         llm.invoke([HumanMessage(content="Relational check: 2+2=")])
                         _log("LOUD DEBUG: CONNECTIVITY TEST SUCCESSFUL")
                 except Exception as test_err:
