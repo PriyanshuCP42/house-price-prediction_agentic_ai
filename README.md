@@ -1,106 +1,98 @@
 # 🏠 House Price Prediction Agentic AI
 
-A high-performance, multi-agent real estate advisory system that combines **Machine Learning (ML)** for precise valuations with **Large Language Models (LLM)** for strategic reasoning. 
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![ML](https://img.shields.io/badge/ML-Random_Forest-8CAAE6?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agentic_AI-000000?style=for-the-badge&logo=langchain&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-Llama_3.1-f3d122?style=for-the-badge&logo=groq&logoColor=black)
 
-Built using **LangGraph**, **Streamlit**, and **Groq**, this system provides institutional-grade property analysis for buyers, sellers, and investors.
+A state-of-the-art real estate intelligence platform that bridges the gap between **Deterministic Machine Learning** and **Agentic Reasoning**. This system doesn't just predict a price; it plans, researches, and advises like a professional human consultant.
+
+---
+
+## 🧠 Agentic AI Architecture (The Brain)
+
+Unlike traditional models that only output a number, this project uses a **Multi-Agent Orchestration** framework powered by **LangGraph**. The system treats the advisory process as a series of specialized cognitive tasks:
+
+### ⚙️ The Graph Workflow
+1. **The Planner**: Receives the initial property data and determines the "Search Strategy." It decides what market data is missing for this specific zipcode.
+2. **The ML Core Agent**: Directly interfaces with the **Random Forest Regressor**. It provides the "Ground Truth" valuation, which serves as a factual anchor for the rest of the pipeline.
+3. **The Web Research Agent**: Equipped with **DuckDuckGo Search**, it scans for real-time market trends, local neighborhood developments, and interest rate impacts that a static model might miss.
+4. **The Risk Analyst**: Performs a multi-dimensional assessment (Market Risk, Physical Risk, Location Risk) based on the combined output of search results and model predictions.
+5. **The Final Synthesizer**: Uses **Llama 3.1 (via Groq)** to cross-reference all agent findings, resolving conflicts between "model prediction" and "actual market sentiment" to produce the final Decision Memo.
+
+### 🤖 Why "Agentic"?
+- **Autonomous Error Correction**: If the search agent finds no data, the graph can route back to attempt a different search query.
+- **Stateful Memory**: The app maintains a "Thread" for each property run, allowing the AI to remember previous context during a session.
+- **Tool Use**: Agents autonomously decide when to use the ML Model vs. when to use the Web Search tool.
 
 ---
 
 ## 🚀 Key Features
 
-### 1. Decision Copilot (Multi-Agent Pipeline)
-Our core engine uses a directed acyclic graph (DAG) to orchestrate specialized AI agents:
-- **ML Predictor**: Uses a Random Forest model trained on King County house prices to provide factual baseline valuations.
-- **Search Agent**: Real-time web search (DuckDuckGo) to fetch current market context, neighborhood trends, and recent sales.
-- **Advisory Agent**: Analyzes property data, investment objectives, and risk factors to generate strategic guidance.
-- **Synthesizer**: Consolidates quantitative and qualitative data into a professional advisory report.
+### 1. Decision Copilot
+- **ML Baseline**: Precison valuation for King County properties.
+- **Real-time Context**: Fetches neighborhood "vibe" and recent infrastructure changes.
+- **Strategic Negotiation**: Generates Anchor, Target, and Walk-away prices.
 
 ### 2. Scenario Lab
-Interactively simulate "what-if" scenarios:
-- Adjust property sqft, condition, or grade and see real-time price delta simulations.
-- Analyze how market volatility affects predicted property value.
+- **Sensitivity Analysis**: See exactly how much a 1-point increase in property "Grade" increases your value ($).
+- **Interactive Deltas**: Adjustable sliders let you simulate renovations and immediately view the ROI.
 
-### 3. Model Insights & Transparency
-Gain deep visibility into the "Black Box" of ML:
-- **Feature Importance**: See which factors (living area, location, age) drive price the most.
-- **Random Forest Probability Distribution**: High-resolution histogram showing the variance across the model's decision trees.
-- **Market Scatters**: Localized price vs. sqft living benchmarks against historical data.
-
-### 4. AI Property Chatbot
-A conversational interface designed for fast, practical real-estate guidance across any US location, powered by Llama 3.1 (via Groq) with a fallback to Google Gemini Flash.
+### 3. AI Property Chatbot
+- **Universal Search**: Guidance for any US location, not just King County.
+- **Natural Language Reasoning**: Ask complex questions like *"Is it better to buy a 3-bed in Seattle or a 4-bed in Renton right now?"*
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Technical Implementation
 
-- **Frontend**: Streamlit (Reactive UI)
-- **Orchestration**: LangGraph (Cyclic state management)
-- **Models**: 
-  - Llama 3.1 8B (via **Groq** for extreme speed)
-  - Gemini 2.0 Flash (via **Google AI** as fallback)
-  - Random Forest Regressor (Custom Scikit-Learn Model)
-- **Data & Visualization**: Pandas, Numpy, Plotly
-- **Tools**: DuckDuckGo Search, Mapbox (Geospatial context)
+### Core Dependencies
+- **LangGraph**: Orchestrates the cyclic agent workflow.
+- **Scikit-Learn**: Powering the Random Forest ensemble model.
+- **Groq & Llama 3.1**: Providing sub-second inference speeds for the LLM agents.
+- **Plotly**: Generating high-fidelity visual insights and probability distributions.
+
+### Model Transparency
+We expose the **Random Forest Prediction Intervals** to the user. Instead of a single number, the **Model Insights** tab shows a distribution of all tree predictions, providing a "Confidence Window" for the valuation.
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Organization
 
 ```text
-├── agents/            # Multi-agent node & tool logic
-├── config/            # LLM, Guardrails, and Page settings
-├── models/            # Saved ML artifacts (Scaler, Random Forest pkl)
-├── output/            # Structured data schemas (Pydantic)
-├── data/              # Sample dataset for live benchmarking
-├── streamlit_app.py   # Primary production entrypoint
-└── advisory_app.py    # Core application logic
+├── agents/             
+│   ├── nodes/          # Task-specific agent nodes (Search, ML, Advisor)
+│   ├── tools/          # Discrete tools (DuckDuckGo, Model Predictor)
+│   └── state.py        # Shared Graph State definition
+├── config/             
+│   ├── settings.py     # Hyperparameters and model versions
+│   └── llm_config.py   # Provider logic (Groq/Gemini)
+├── models/             # Pre-trained ML pkl files and scalers
+└── streamlit_app.py    # Main UI entrypoint
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## ⚙️ Quick Start
 
-### Local Setup
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/PriyanshuCP42/house-price-prediction_agentic_ai.git
-   cd house-price-prediction_agentic_ai
-   ```
-
-2. **Install dependencies**:
+1. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Configure Secrets**:
-   Create a `.streamlit/secrets.toml` file:
+2. **Setup Secrets**:
+   Add to `.streamlit/secrets.toml`:
    ```toml
-   GROQ_API_KEY = "your_groq_key_here"
-   GOOGLE_API_KEY = "your_google_key_here"
+   GROQ_API_KEY = "gsk_..."
    ```
 
-4. **Run the app**:
+3. **Launch**:
    ```bash
    streamlit run streamlit_app.py
    ```
 
-### Streamlit Cloud Deployment
-1. Push your code to GitHub.
-2. Deploy on Streamlit Community Cloud selecting `streamlit_app.py` as the entrypoint.
-3. Add your `GROQ_API_KEY` and `GOOGLE_API_KEY` to the **Secrets** tab in Advanced Settings.
-
 ---
 
-## 📋 Environment Variables
-
-| Variable | Description | Source |
-| :--- | :--- | :--- |
-| `GROQ_API_KEY` | Primary LLM (Llama 3.1) | [Groq Console](https://console.groq.com/) |
-| `GOOGLE_API_KEY` | Fallback LLM (Gemini 2.0) | [Google AI Studio](https://aistudio.google.com/) |
-
----
-
-## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
-
+**Built with ❤️ for Modern Real Estate Intelligence.**
 **Author**: [PriyanshuCP42](https://github.com/PriyanshuCP42)
