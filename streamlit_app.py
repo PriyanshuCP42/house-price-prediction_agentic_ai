@@ -1329,3 +1329,12 @@ else:
         if st.button("Open Property Chatbot", key="bottom_chat_btn", width="stretch"):
             st.session_state["_chatbot_switch"] = True
             st.rerun()
+
+    # --- System Diagnostics (Hidden at bottom of sidebar) ---
+    import config.llm_config as llm_config
+    if llm_config.STATUS_LOG:
+        with st.sidebar.expander("🛠️ System Diagnostics"):
+            for line in llm_config.STATUS_LOG:
+                st.code(line)
+            if st.button("Re-run Tests", key="diag_rerun_btn"):
+                st.rerun()

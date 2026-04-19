@@ -13,6 +13,18 @@ from config.settings import (
 
 _llm_instance = None
 
+# Global diagnostics for UI display
+STATUS_LOG = []
+
+
+def _log(msg):
+    """Log to both console and UI buffer."""
+    import datetime
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    formatted = f"[{ts}] {msg}"
+    print(formatted, flush=True)
+    STATUS_LOG.append(formatted)
+
 
 def _with_timeout(factory, kwargs: dict):
     """Instantiate a LangChain chat model with timeout when supported."""
@@ -39,36 +51,34 @@ def get_llm():
 
 # --- Loud Cloud Diagnostics ---
 def _cloud_diag():
-    print("\n" + "="*50)
-    print("LOUD DEBUG: Starting LLM Configuration Discovery")
+    _log("LOUD DEBUG: Starting LLM Configuration Discovery")
     # Check Environment
     env_keys = [k for k in os.environ.keys() if "GROQ" in k or "GOOGLE" in k or "API_KEY" in k]
-    print(f"LOUD DEBUG: Relevant Environment Keys: {env_keys}")
+    _log(f"LOUD DEBUG: Relevant Environment Keys: {env_keys}")
     
     # Check Streamlit Secrets
     try:
         import streamlit as st
         if hasattr(st, "secrets") and st.secrets:
             sec_keys = list(st.secrets.keys())
-            print(f"LOUD DEBUG: st.secrets detected with keys: {sec_keys}")
+            _log(f"LOUD DEBUG: st.secrets detected with keys: {sec_keys}")
             
             # Simple Connectivity Test (Hidden)
             if "GROQ_API_KEY" in sec_keys or "GOOGLE_API_KEY" in sec_keys:
                 try:
                     llm = get_llm()
                     if llm:
-                        print("LOUD DEBUG: Initiating AI Connectivity Test...")
+                        _log("LOUD DEBUG: Initiating AI Connectivity Test...")
                         from langchain_core.messages import HumanMessage
                         # Fast test, no tools
                         llm.invoke([HumanMessage(content="Relational check: 2+2=")])
-                        print("LOUD DEBUG: CONNECTIVITY TEST SUCCESSFUL")
+                        _log("LOUD DEBUG: CONNECTIVITY TEST SUCCESSFUL")
                 except Exception as test_err:
-                    print(f"LOUD DEBUG: CONNECTIVITY TEST FAILED: {test_err}")
+                    _log(f"LOUD DEBUG: CONNECTIVITY TEST FAILED: {test_err}")
         else:
-            print("LOUD DEBUG: st.secrets is EMPTY or UNAVAILABLE")
+            _log("LOUD DEBUG: st.secrets is EMPTY or UNAVAILABLE")
     except Exception as e:
-        print(f"LOUD DEBUG: st.secrets error: {e}")
-    print("="*50 + "\n")
+        _log(f"LOUD DEBUG: st.secrets error: {e}")
 
 _cloud_diag()
 
